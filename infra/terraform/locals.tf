@@ -1,10 +1,14 @@
 locals {
-  name = "${var.project_name}-${var.environment}"
-
   common_tags = {
     Project     = var.project_name
-    Environment = var.environment
+    Environment = "dev"
     ManagedBy   = "Terraform"
-    Owner       = var.owner
+    Platform    = "EKS"
   }
+
+  ecr_repositories = [
+    "frontend-despacho",
+    "backend-ventas",
+    "backend-despachos"
+  ]
 }
