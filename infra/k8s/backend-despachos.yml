@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: backend-despachos
-          image: backend-despachos:latest
+          image: ${BACKEND_DESPACHOS_IMAGE}
           imagePullPolicy: Always
           ports:
             - containerPort: 8081

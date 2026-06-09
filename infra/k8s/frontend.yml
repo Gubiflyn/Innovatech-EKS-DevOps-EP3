@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: frontend-despacho
-          image: frontend-despacho:latest
+          image: ${FRONTEND_DESPACHO_IMAGE}
           imagePullPolicy: Always
           ports:
             - containerPort: 80
