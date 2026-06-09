@@ -1,0 +1,137 @@
+name: Despliegue en AWS con EKS
+
+on:
+  push:
+    branches:
+      - deploy
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_REGION: us-east-1
+      CLUSTER_NAME: innovatech-eks
+      K8S_NAMESPACE: innovatech
+
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar credenciales de AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login con Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Obtener AWS Account ID
+        run: |
+          echo "ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)" >> $GITHUB_ENV
+
+      - name: Crear URLs de los repositorios ECR
+        run: |
+          echo "FRONTEND_DESPACHO_ECR=${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/frontend-despacho" >> $GITHUB_ENV
+          echo "BACKEND_VENTAS_ECR=${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/backend-ventas" >> $GITHUB_ENV
+          echo "BACKEND_DESPACHOS_ECR=${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/backend-despachos" >> $GITHUB_ENV
+
+      - name: Configurar Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build imagen Frontend Despacho
+        run: |
+          docker buildx build \
+            --platform linux/amd64 \
+            -t $FRONTEND_DESPACHO_ECR:${GITHUB_SHA} \
+            ./frontend/front_despacho \
+            --load
+
+      - name: Subir imagen Frontend Despacho a ECR
+        run: |
+          docker push $FRONTEND_DESPACHO_ECR:${GITHUB_SHA}
+
+      - name: Build imagen Backend Ventas
+        run: |
+          docker buildx build \
+            --platform linux/amd64 \
+            -t $BACKEND_VENTAS_ECR:${GITHUB_SHA} \
+            ./backend/back-Ventas_SpringBoot/Springboot-API-REST \
+            --load
+
+      - name: Subir imagen Backend Ventas a ECR
+        run: |
+          docker push $BACKEND_VENTAS_ECR:${GITHUB_SHA}
+
+      - name: Build imagen Backend Despachos
+        run: |
+          docker buildx build \
+            --platform linux/amd64 \
+            -t $BACKEND_DESPACHOS_ECR:${GITHUB_SHA} \
+            ./backend/back-Despachos_SpringBoot/Springboot-API-REST-DESPACHO \
+            --load
+
+      - name: Subir imagen Backend Despachos a ECR
+        run: |
+          docker push $BACKEND_DESPACHOS_ECR:${GITHUB_SHA}
+
+      - name: Instalar kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Conectarse al clúster EKS
+        run: |
+          aws eks update-kubeconfig \
+            --region $AWS_REGION \
+            --name $CLUSTER_NAME
+
+      - name: Preparar manifiestos de Kubernetes
+        run: |
+          mkdir -p infra/k8s-build
+
+          export FRONTEND_DESPACHO_IMAGE=$FRONTEND_DESPACHO_ECR:${GITHUB_SHA}
+          export BACKEND_VENTAS_IMAGE=$BACKEND_VENTAS_ECR:${GITHUB_SHA}
+          export BACKEND_DESPACHOS_IMAGE=$BACKEND_DESPACHOS_ECR:${GITHUB_SHA}
+
+          envsubst < infra/k8s/frontend-deployment.yml > infra/k8s-build/frontend-deployment.yml
+          envsubst < infra/k8s/backend-ventas-deployment.yml > infra/k8s-build/backend-ventas-deployment.yml
+          envsubst < infra/k8s/backend-despachos-deployment.yml > infra/k8s-build/backend-despachos-deployment.yml
+
+          cp infra/k8s/namespace.yml infra/k8s-build/
+          cp infra/k8s/configmap.yml infra/k8s-build/
+          cp infra/k8s/secrets.yml infra/k8s-build/
+          cp infra/k8s/mysql-deployment.yml infra/k8s-build/
+          cp infra/k8s/mysql-service.yml infra/k8s-build/
+          cp infra/k8s/frontend-service.yml infra/k8s-build/
+          cp infra/k8s/backend-ventas-service.yml infra/k8s-build/
+          cp infra/k8s/backend-despachos-service.yml infra/k8s-build/
+          cp infra/k8s/hpa.yml infra/k8s-build/
+
+      - name: Aplicar manifiestos de Kubernetes
+        run: |
+          kubectl apply -f infra/k8s-build/namespace.yml
+          kubectl apply -f infra/k8s-build/ -n $K8S_NAMESPACE
+
+      - name: Esperar despliegue de MySQL
+        run: |
+          kubectl rollout status deployment/mysql -n $K8S_NAMESPACE
+
+      - name: Esperar despliegue del Backend Ventas
+        run: |
+          kubectl rollout status deployment/backend-ventas -n $K8S_NAMESPACE
+
+      - name: Esperar despliegue del Backend Despachos
+        run: |
+          kubectl rollout status deployment/backend-despachos -n $K8S_NAMESPACE
+
+      - name: Esperar despliegue del Frontend Despacho
+        run: |
+          kubectl rollout status deployment/frontend-despacho -n $K8S_NAMESPACE
+
+      - name: Mostrar recursos desplegados
+        run: |
+          kubectl get pods -n $K8S_NAMESPACE
+          kubectl get svc -n $K8S_NAMESPACE
+          kubectl get hpa -n $K8S_NAMESPACE
