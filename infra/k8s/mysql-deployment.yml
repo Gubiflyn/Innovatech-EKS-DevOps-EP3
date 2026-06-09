@@ -23,7 +23,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: app-config
-                  key: MYSQL_DATABASE
+                  key: DB_NAME
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -46,16 +46,3 @@ spec:
             limits:
               cpu: "500m"
               memory: "1Gi"
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: mysql-service
-  namespace: innovatech
-spec:
-  type: ClusterIP
-  selector:
-    app: mysql
-  ports:
-    - port: 3306
-      targetPort: 3306

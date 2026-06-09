@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-ventas
+  name: backend-despachos
   namespace: innovatech
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: backend-ventas
+      app: backend-despachos
   template:
     metadata:
       labels:
-        app: backend-ventas
+        app: backend-despachos
     spec:
       containers:
-        - name: backend-ventas
-          image: ${BACKEND_VENTAS_IMAGE}
+        - name: backend-despachos
+          image: ${BACKEND_DESPACHOS_IMAGE}
           imagePullPolicy: Always
           ports:
-            - containerPort: 8080
+            - containerPort: 8081
           env:
             - name: DB_ENDPOINT
               valueFrom:
@@ -52,16 +52,3 @@ spec:
             limits:
               cpu: "500m"
               memory: "1Gi"
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: backend-ventas-service
-  namespace: innovatech
-spec:
-  type: ClusterIP
-  selector:
-    app: backend-ventas
-  ports:
-    - port: 8080
-      targetPort: 8080
