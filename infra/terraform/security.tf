@@ -4,7 +4,7 @@ resource "aws_security_group" "eks_cluster" {
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    description = "HTTPS para comunicación con Kubernetes API"
+    description = "HTTPS para comunicacion con Kubernetes API"
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
@@ -30,7 +30,7 @@ resource "aws_security_group" "eks_nodes" {
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    description = "Comunicación entre nodos"
+    description = "Comunicacion entre nodos"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -38,7 +38,7 @@ resource "aws_security_group" "eks_nodes" {
   }
 
   ingress {
-    description     = "Comunicación desde control plane"
+    description     = "Comunicacion desde control plane"
     from_port       = 1025
     to_port         = 65535
     protocol        = "tcp"
@@ -46,7 +46,7 @@ resource "aws_security_group" "eks_nodes" {
   }
 
   ingress {
-    description = "HTTP público para servicios LoadBalancer"
+    description = "HTTP publico para servicios LoadBalancer"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
@@ -54,7 +54,7 @@ resource "aws_security_group" "eks_nodes" {
   }
 
   ingress {
-    description = "HTTPS público para servicios LoadBalancer"
+    description = "HTTPS publico para servicios LoadBalancer"
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"

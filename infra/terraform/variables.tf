@@ -1,5 +1,5 @@
 variable "aws_region" {
-  description = "Región de AWS donde se desplegará la infraestructura."
+  description = "Region de AWS donde se desplegará la infraestructura."
   type        = string
   default     = "us-east-1"
 }
@@ -11,7 +11,7 @@ variable "project_name" {
 }
 
 variable "cluster_name" {
-  description = "Nombre del clúster EKS."
+  description = "Nombre del cluster EKS."
   type        = string
   default     = "innovatech-eks"
 }
@@ -23,15 +23,15 @@ variable "vpc_cidr" {
 }
 
 variable "public_subnet_cidrs" {
-  description = "CIDR de las subredes públicas."
+  description = "CIDR de las subredes publicas."
   type        = list(string)
   default     = ["10.0.1.0/24", "10.0.2.0/24"]
 }
 
 variable "node_instance_types" {
-  description = "Tipos de instancia para los nodos del clúster EKS."
+  description = "Tipos de instancia para los nodos del cluster EKS."
   type        = list(string)
-  default     = ["t3.medium"]
+  default     = ["t3.large"]
 }
 
 variable "node_desired_size" {
@@ -41,13 +41,13 @@ variable "node_desired_size" {
 }
 
 variable "node_min_size" {
-  description = "Cantidad mínima de nodos."
+  description = "Cantidad minima de nodos."
   type        = number
   default     = 1
 }
 
 variable "node_max_size" {
-  description = "Cantidad máxima de nodos."
+  description = "Cantidad maxima de nodos."
   type        = number
   default     = 3
 }
