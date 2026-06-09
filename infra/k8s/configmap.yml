@@ -4,8 +4,8 @@ metadata:
   name: app-config
   namespace: innovatech
 data:
-  MYSQL_HOST: mysql-service
-  MYSQL_PORT: "3306"
-  MYSQL_DATABASE: innovatech_db
+  DB_ENDPOINT: mysql-service
+  DB_PORT: "3306"
+  DB_NAME: innovatech_db
   BACKEND_VENTAS_PORT: "8080"
   BACKEND_DESPACHOS_PORT: "8081"
