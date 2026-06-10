@@ -1,15 +1,15 @@
 output "aws_region" {
-  description = "Región de AWS utilizada."
+  description = "Region de AWS utilizada."
   value       = var.aws_region
 }
 
 output "cluster_name" {
-  description = "Nombre del clúster EKS."
+  description = "Nombre del cluster EKS."
   value       = aws_eks_cluster.main.name
 }
 
 output "cluster_endpoint" {
-  description = "Endpoint público del clúster EKS."
+  description = "Endpoint público del cluster EKS."
   value       = aws_eks_cluster.main.endpoint
 }
 
@@ -32,6 +32,6 @@ output "ecr_repository_urls" {
 }
 
 output "update_kubeconfig_command" {
-  description = "Comando para conectar kubectl al clúster EKS."
+  description = "Comando para conectar kubectl al cluster EKS."
   value       = "aws eks update-kubeconfig --region ${var.aws_region} --name ${aws_eks_cluster.main.name}"
 }
