@@ -94,6 +94,10 @@ jobs:
           aws eks update-kubeconfig \
             --region "$AWS_REGION" \
             --name "$CLUSTER_NAME"
+      - name: Instalar Metrics Server
+        run: |
+          kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml --validate=false --request-timeout=5m
+          kubectl rollout status deployment/metrics-server -n kube-system --timeout=300s
 
       - name: Preparar manifiestos de Kubernetes
         run: |
