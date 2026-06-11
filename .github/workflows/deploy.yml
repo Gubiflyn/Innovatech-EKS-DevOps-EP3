@@ -9,7 +9,6 @@ jobs:
 deploy:
 runs-on: ubuntu-latest
 
-```
 env:
   AWS_REGION: ${{ vars.AWS_REGION }}
   CLUSTER_NAME: ${{ vars.EKS_CLUSTER_NAME }}
@@ -176,4 +175,3 @@ steps:
       kubectl get hpa -n "$K8S_NAMESPACE"
       kubectl top nodes || true
       kubectl top pods -n "$K8S_NAMESPACE" || true
-```
