@@ -99,18 +99,21 @@ Innovatech-EKS-DevOps-EP3/
 ├── backend/
 │   ├── back-Ventas_SpringBoot/
 │   │   └── Springboot-API-REST/
+│   │       ├── .env.example
 │   │       ├── Dockerfile
 │   │       ├── pom.xml
 │   │       └── src/
 │   │
 │   └── back-Despachos_SpringBoot/
 │       └── Springboot-API-REST-DESPACHO/
+│           ├── .env.example
 │           ├── Dockerfile
 │           ├── pom.xml
 │           └── src/
 │
 ├── frontend/
 │   └── front_despacho/
+│       ├── .env.example
 │       ├── Dockerfile
 │       ├── package.json
 │       ├── vite.config.js
@@ -127,6 +130,7 @@ Innovatech-EKS-DevOps-EP3/
 │   │   └── outputs.tf
 │   │
 │   └── k8s/
+│       ├── .env.example
 │       ├── namespace.yml
 │       ├── configmap.yml
 │       ├── secrets.yml
@@ -140,6 +144,7 @@ Innovatech-EKS-DevOps-EP3/
 │       ├── frontend-service.yml
 │       └── hpa.yml
 │
+├── .gitignore
 └── README.md
 ```
 
@@ -381,6 +386,83 @@ ECR_FRONTEND_REPOSITORY=frontend-despacho
 ECR_VENTAS_REPOSITORY=backend-ventas
 ECR_DESPACHOS_REPOSITORY=backend-despachos
 ```
+
+---
+
+## Variables de entorno y archivos `.env.example`
+
+El proyecto incluye archivos `.env.example` como referencia para documentar las variables de entorno necesarias en cada componente, sin exponer credenciales reales dentro del repositorio.
+
+Estos archivos sirven como guía para que otro integrante o evaluador pueda entender qué variables necesita configurar el frontend, los backends y Kubernetes.
+
+Archivos agregados:
+
+```text
+frontend/front_despacho/.env.example
+backend/back-Ventas_SpringBoot/Springboot-API-REST/.env.example
+backend/back-Despachos_SpringBoot/Springboot-API-REST-DESPACHO/.env.example
+infra/k8s/.env.example
+```
+
+Los archivos `.env` reales no deben subirse al repositorio, ya que pueden contener contraseñas, tokens o credenciales sensibles.
+
+Para trabajar localmente, se debe copiar el archivo de ejemplo y completar los valores correspondientes:
+
+```bash
+cp .env.example .env
+```
+
+Ejemplo de variables usadas por los backends:
+
+```env
+DB_ENDPOINT=localhost
+DB_PORT=3306
+DB_NAME=innovatech_db
+DB_USERNAME=innovatech_user
+DB_PASSWORD=change_me
+```
+
+Ejemplo de variables usadas por el frontend:
+
+```env
+VITE_APP_NAME=Innovatech
+VITE_API_BASE_URL=/api/v1
+VITE_BACKEND_VENTAS_ENDPOINT=/api/v1/ventas
+VITE_BACKEND_DESPACHOS_ENDPOINT=/api/v1/despachos
+```
+
+En Kubernetes, las variables no sensibles se gestionan mediante `ConfigMap` y las credenciales mediante `Secret`.
+
+Archivos relacionados:
+
+```text
+infra/k8s/configmap.yml
+infra/k8s/secrets.yml
+```
+
+En GitHub Actions, las credenciales de AWS se gestionan mediante GitHub Secrets y no se escriben directamente en el código.
+
+Secrets utilizados:
+
+```text
+AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY
+AWS_SESSION_TOKEN
+```
+
+Variables utilizadas por el pipeline:
+
+```text
+AWS_REGION
+AWS_ACCOUNT_ID
+EKS_CLUSTER_NAME
+K8S_NAMESPACE
+ECR_FRONTEND_REPOSITORY
+ECR_VENTAS_REPOSITORY
+ECR_DESPACHOS_REPOSITORY
+```
+
+Esta separación permite mantener el proyecto más seguro, ordenado y fácil de desplegar en distintos entornos.
 
 ---
 
@@ -629,6 +711,8 @@ El proyecto aplica buenas prácticas básicas de seguridad:
 - MySQL es interno mediante ClusterIP.
 - Las credenciales AWS se almacenan como GitHub Secrets.
 - Las variables no sensibles se almacenan como GitHub Variables.
+- Se agregaron archivos `.env.example` para documentar variables sin exponer credenciales reales.
+- Los archivos `.env` reales se excluyen del repositorio mediante `.gitignore`.
 - La infraestructura se crea con Terraform.
 - Los archivos `terraform.tfstate`, `.terraform` y `*.tfvars` no deben subirse al repositorio.
 - Los nodos se distribuyen en distintas zonas de disponibilidad.
@@ -651,6 +735,7 @@ El proyecto aplica buenas prácticas básicas de seguridad:
 - HPA configurado para escalamiento.
 - Metrics Server habilitado para métricas.
 - Validación de rollout en el pipeline.
+- Documentación de variables de entorno mediante archivos `.env.example`.
 - Uso de ramas, principalmente `deploy` para despliegue.
 
 ---
@@ -731,6 +816,7 @@ El proyecto queda con:
 - HPA configurado con métricas reales.
 - Metrics Server funcionando.
 - Prueba de auto-healing disponible para evidencia.
+- Archivos `.env.example` agregados para documentar variables de entorno sin exponer credenciales.
 - Aplicación web accesible desde navegador.
 
 ---
