@@ -740,32 +740,6 @@ El proyecto aplica buenas prácticas básicas de seguridad:
 
 ---
 
-## Evidencias recomendadas para el informe
-
-Capturas sugeridas:
-
-1. `terraform apply` finalizado correctamente.
-2. `terraform output`.
-3. Cluster EKS `innovatech-eks` en estado activo.
-4. Node Group con nodos en estado Ready.
-5. Repositorios ECR creados.
-6. Imágenes subidas en cada repositorio ECR.
-7. GitHub Actions finalizado con éxito.
-8. `kubectl get nodes`.
-9. `kubectl get pods -n innovatech -o wide`.
-10. `kubectl get deployments -n innovatech`.
-11. `kubectl get svc -n innovatech`.
-12. Página web funcionando desde el LoadBalancer.
-13. Servicios backend como ClusterIP.
-14. `kubectl top nodes`.
-15. `kubectl top pods -n innovatech`.
-16. `kubectl get hpa -n innovatech`.
-17. Prueba de auto-healing eliminando un pod.
-18. Load Balancer activo en AWS.
-19. Security Groups con reglas inbound y outbound.
-20. Recursos de EKS visibles desde la consola de AWS.
-
----
 
 ## Problemas resueltos durante el desarrollo
 
