@@ -175,3 +175,46 @@ jobs:
           kubectl get hpa -n "$K8S_NAMESPACE"
           kubectl top nodes || true
           kubectl top pods -n "$K8S_NAMESPACE" || true
+
+      - name: Obtener URL del Frontend
+        run: |
+          FRONTEND_SERVICE="frontend-despacho-service"
+
+          echo "Esperando URL publica del LoadBalancer..."
+
+          for i in {1..60}; do
+            FRONTEND_HOST=$(kubectl get svc "$FRONTEND_SERVICE" -n "$K8S_NAMESPACE" -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null || true)
+            FRONTEND_IP=$(kubectl get svc "$FRONTEND_SERVICE" -n "$K8S_NAMESPACE" -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || true)
+
+            if [ -n "$FRONTEND_HOST" ]; then
+              FRONTEND_URL="http://$FRONTEND_HOST"
+              break
+            fi
+
+            if [ -n "$FRONTEND_IP" ]; then
+              FRONTEND_URL="http://$FRONTEND_IP"
+              break
+            fi
+
+            echo "LoadBalancer aun pendiente... intento $i/60"
+            sleep 10
+          done
+
+          if [ -z "${FRONTEND_URL:-}" ]; then
+            echo "No se pudo obtener la URL del frontend."
+            echo "Estado actual del servicio:"
+            kubectl get svc "$FRONTEND_SERVICE" -n "$K8S_NAMESPACE" -o wide
+            exit 1
+          fi
+
+          echo "URL del Frontend: $FRONTEND_URL"
+          echo "FRONTEND_URL=$FRONTEND_URL" >> "$GITHUB_ENV"
+
+          echo "## Frontend desplegado correctamente" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### URL del Frontend" >> "$GITHUB_STEP_SUMMARY"
+          echo "[Abrir Frontend]($FRONTEND_URL)" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Servicio Kubernetes: \`$FRONTEND_SERVICE\`" >> "$GITHUB_STEP_SUMMARY"
+
+          echo "::notice title=URL Frontend::$FRONTEND_URL"
