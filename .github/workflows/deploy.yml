@@ -146,6 +146,7 @@ jobs:
 
           cp infra/k8s/namespace.yml infra/k8s-build/
           cp infra/k8s/configmap.yml infra/k8s-build/
+          cp infra/k8s/mysql-pv.yml infra/k8s-build/
           cp infra/k8s/mysql-pvc.yml infra/k8s-build/
           cp infra/k8s/mysql-deployment.yml infra/k8s-build/
           cp infra/k8s/mysql-service.yml infra/k8s-build/
@@ -175,6 +176,7 @@ jobs:
 
       - name: Aplicar MySQL
         run: |
+          kubectl apply -f infra/k8s-build/mysql-pv.yml --validate=false --request-timeout=5m
           kubectl apply -f infra/k8s-build/mysql-pvc.yml -n "$K8S_NAMESPACE" --validate=false --request-timeout=5m
           kubectl apply -f infra/k8s-build/mysql-deployment.yml -n "$K8S_NAMESPACE" --validate=false --request-timeout=5m
           kubectl apply -f infra/k8s-build/mysql-service.yml -n "$K8S_NAMESPACE" --validate=false --request-timeout=5m
