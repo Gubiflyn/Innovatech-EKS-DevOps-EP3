@@ -146,7 +146,6 @@ jobs:
 
           cp infra/k8s/namespace.yml infra/k8s-build/
           cp infra/k8s/configmap.yml infra/k8s-build/
-          cp infra/k8s/secrets.yml infra/k8s-build/
           cp infra/k8s/mysql-deployment.yml infra/k8s-build/
           cp infra/k8s/mysql-service.yml infra/k8s-build/
           cp infra/k8s/backend-ventas-service.yml infra/k8s-build/
@@ -159,9 +158,19 @@ jobs:
           kubectl apply -f infra/k8s-build/namespace.yml --validate=false --request-timeout=5m
 
       - name: Aplicar ConfigMap y Secret
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_USER: ${{ secrets.MYSQL_USER }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
         run: |
           kubectl apply -f infra/k8s-build/configmap.yml -n "$K8S_NAMESPACE" --validate=false --request-timeout=5m
-          kubectl apply -f infra/k8s-build/secrets.yml -n "$K8S_NAMESPACE" --validate=false --request-timeout=5m
+
+          kubectl create secret generic mysql-secret \
+            --from-literal=MYSQL_ROOT_PASSWORD="$MYSQL_ROOT_PASSWORD" \
+            --from-literal=MYSQL_USER="$MYSQL_USER" \
+            --from-literal=MYSQL_PASSWORD="$MYSQL_PASSWORD" \
+            -n "$K8S_NAMESPACE" \
+            --dry-run=client -o yaml | kubectl apply -f - --validate=false --request-timeout=5m
 
       - name: Aplicar MySQL
         run: |

@@ -4,3 +4,5 @@
 
 .DS_Store
 *.log
+
+infra/k8s/secrets.yml
