@@ -59,6 +59,14 @@ El frontend es el único servicio expuesto públicamente mediante un LoadBalance
 
 ---
 
+## Diagrama de arquitectura
+
+El siguiente diagrama representa la arquitectura general del proyecto Innovatech-EKS-DevOps-EP3. En él se muestra el flujo desde GitHub hacia Amazon ECR, el despliegue en AWS EKS, la VPC con sus zonas de disponibilidad, el acceso público mediante LoadBalancer, los servicios internos de Kubernetes, los backends, MySQL y el entorno local utilizado con Docker.
+
+![Diagrama de arquitectura AWS y entorno local](./image/DiagramaAWS.png)
+
+---
+
 ## Tecnologías utilizadas
 
 - AWS
