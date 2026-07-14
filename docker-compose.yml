@@ -1,0 +1,83 @@
+services:
+  mysql-service:
+    image: mysql:8.0
+    container_name: innovatech-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "${DB_PORT}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - innovatech-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  backend-ventas-service:
+    build:
+      context: ./backend/back-Ventas_SpringBoot/Springboot-API-REST
+      dockerfile: Dockerfile
+    container_name: innovatech-backend-ventas
+    restart: unless-stopped
+    depends_on:
+      mysql-service:
+        condition: service_healthy
+    environment:
+      DB_ENDPOINT: mysql-service
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME}
+      DB_USERNAME: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "${BACKEND_VENTAS_PORT}:8080"
+    networks:
+      - innovatech-network
+
+  backend-despachos-service:
+    build:
+      context: ./backend/back-Despachos_SpringBoot/Springboot-API-REST-DESPACHO
+      dockerfile: Dockerfile
+    container_name: innovatech-backend-despachos
+    restart: unless-stopped
+    depends_on:
+      mysql-service:
+        condition: service_healthy
+    environment:
+      DB_ENDPOINT: mysql-service
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME}
+      DB_USERNAME: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "${BACKEND_DESPACHOS_PORT}:8081"
+    networks:
+      - innovatech-network
+
+  frontend-despacho:
+    build:
+      context: ./frontend/front_despacho
+      dockerfile: Dockerfile
+    container_name: innovatech-frontend-despacho
+    restart: unless-stopped
+    depends_on:
+      - backend-ventas-service
+      - backend-despachos-service
+    ports:
+      - "${FRONTEND_PORT}:80"
+    networks:
+      - innovatech-network
+
+networks:
+  innovatech-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
